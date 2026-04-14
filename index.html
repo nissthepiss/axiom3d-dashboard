@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AXIOM3D — Ground Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060c;
+  --surface: #0d0d18;
+  --surface-alt: #111122;
+  --border: #1a1a2e;
+  --border-bright: #252540;
+  --text: #b8b8cc;
+  --text-dim: #6a6a80;
+  --text-bright: #e0e0f0;
+  --amber: #f0a030;
+  --amber-dim: #805820;
+  --green: #30d070;
+  --green-dim: #1a5535;
+  --red: #f04040;
+  --red-dim: #602020;
+  --blue: #4080f0;
+  --blue-dim: #1a3060;
+  --cyan: #40d0d0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Share Tech Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scanlines overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(180deg, #0a0a18 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 16px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.logo {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--amber);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.logo span {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  display: block;
+  margin-top: 2px;
+}
+
+.sync-badge {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-align: right;
+  line-height: 1.4;
+}
+.sync-badge .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 4px;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Phase Banner ── */
+.phase-banner {
+  background: var(--surface);
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  padding: 10px 12px;
+  margin: 12px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--text-bright);
+  line-height: 1.5;
+}
+
+/* ── Progress Bar ── */
+.progress-section {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--surface-alt);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), var(--green));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ── Sections ── */
+.section {
+  margin: 0 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.section-header {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-header .count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+
+.section-body {
+  padding: 8px 12px 12px;
+}
+
+.section-body.collapsed {
+  display: none;
+}
+
+/* ── Tasks ── */
+.task {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.task:last-child { border-bottom: none; }
+.task.done { opacity: 0.45; }
+.task.done .task-text { text-decoration: line-through; }
+.check {
+  color: var(--amber);
+  font-size: 1rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+.task.done .check { color: var(--green); }
+
+/* ── Queue Rows ── */
+.queue-row {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+.queue-row:last-child { border-bottom: none; }
+.queue-agent {
+  color: var(--cyan);
+  font-size: 0.7rem;
+  min-width: 72px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.queue-row.med .queue-agent { color: var(--blue); }
+
+/* ── Blockers ── */
+.blocker-card {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+}
+.blocker-card:last-child { border-bottom: none; }
+.blocker-name {
+  color: var(--red);
+  font-size: 0.72rem;
+  margin-bottom: 3px;
+}
+.blocker-impact {
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.blocker-res {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+/* ── Completed ── */
+.completed-row {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+.completed-row:last-child { border-bottom: none; }
+.completed-date { color: var(--text-dim); min-width: 68px; flex-shrink: 0; }
+.completed-agent { color: var(--green); min-width: 70px; flex-shrink: 0; }
+.completed-what { color: var(--text); }
+
+/* ── Agents ── */
+.agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.agent-card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px;
+}
+.agent-name {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-desc {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Changelog ── */
+.changelog-entry {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+}
+.changelog-entry:last-child { border-bottom: none; }
+.cl-num { color: var(--amber-dim); min-width: 24px; }
+.cl-title { color: var(--text); line-height: 1.3; }
+
+/* ── Bucket Pills ── */
+.bucket {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+.bucket:last-child { border-bottom: none; }
+.bucket-label {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.bucket-a .bucket-label { color: var(--red); }
+.bucket-b .bucket-label { color: var(--amber); }
+.bucket-c .bucket-label { color: var(--blue); }
+.bucket-d .bucket-label { color: var(--text-dim); }
+
+/* ── Context ── */
+.context-text {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 20px 16px 32px;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ── Collapsible toggle ── */
+.section-header::after {
+  content: '\25BE';
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+.section-header.collapsed::after {
+  transform: rotate(-90deg);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      AXIOM3D
+      <span>GROUND CONTROL</span>
+    </div>
+    <div class="sync-badge">
+      <span class="dot"></span>SYNCED<br>
+      14 Apr 2026, 14:56
+    </div>
+  </div>
+</div>
+
+<div class="phase-banner">**Archaeology COMPLETE** — Projects folder triaged, project relocated to C:\Axiom3D, agent system redesigned.<br>**Next up:** Collector architecture + mothership design (see MEDIUM PRIORITY).<br><br>---</div>
+
+<div class="progress-section">
+  <div class="progress-header">
+    <span>TODAY</span>
+    <span>2/5 (40%)</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" style="width:40%"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    Tasks <span class="count">2/5</span>
+  </div>
+  <div class="section-body">
+    <div class="task done">
+      <span class="check">&#9745;</span>
+      <span class="task-text">Archaeology: Projects folder walkthrough (triage each folder with Paul)</span>
+    </div>
+    <div class="task done">
+      <span class="check">&#9745;</span>
+      <span class="task-text">Archaeology: research/ old files (comb pre-today docs)</span>
+    </div>
+    <div class="task ">
+      <span class="check">&#9744;</span>
+      <span class="task-text">Quick ideas check (anything new after sleeping on yesterday's brain dump?)</span>
+    </div>
+    <div class="task ">
+      <span class="check">&#9744;</span>
+      <span class="task-text">Register self-employed business (UK) — awaiting UTR (~due Apr 22)</span>
+    </div>
+    <div class="task ">
+      <span class="check">&#9744;</span>
+      <span class="task-text">Paper trading module — parked until after archaeology</span>
+    </div></div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    High Priority Queue <span class="count">3</span>
+  </div>
+  <div class="section-body">
+    <div class="queue-row">
+      <span class="queue-agent">Librarian</span>
+      <span class="queue-task">~~Archaeology: Projects folder walkthrough~~ ✅</span>
+    </div>
+    <div class="queue-row">
+      <span class="queue-agent">Librarian</span>
+      <span class="queue-task">~~Archaeology: research/ old files~~ ✅</span>
+    </div>
+    <div class="queue-row">
+      <span class="queue-agent">Librarian</span>
+      <span class="queue-task">Find existing productivity tracker</span>
+    </div></div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    Medium Priority Queue <span class="count">6</span>
+  </div>
+  <div class="section-body">
+    <div class="queue-row med">
+      <span class="queue-agent">Architect</span>
+      <span class="queue-task">Design collector architecture properly</span>
+    </div>
+    <div class="queue-row med">
+      <span class="queue-agent">Researcher</span>
+      <span class="queue-task">Research mothership architecture patterns</span>
+    </div>
+    <div class="queue-row med">
+      <span class="queue-agent">Toolman</span>
+      <span class="queue-task">First sweep: LunarCrush, Grok, AIXBT, Birdeye, Arkham, Cielo</span>
+    </div>
+    <div class="queue-row med">
+      <span class="queue-agent">Analyst</span>
+      <span class="queue-task">Backtest revival hypothesis</span>
+    </div>
+    <div class="queue-row med">
+      <span class="queue-agent">Builder</span>
+      <span class="queue-task">Set up data backups</span>
+    </div>
+    <div class="queue-row med">
+      <span class="queue-agent">Builder</span>
+      <span class="queue-task">Risk guardrails document</span>
+    </div></div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    Blockers <span class="count">4</span>
+  </div>
+  <div class="section-body">
+    <div class="blocker-card">
+      <div class="blocker-name">Collector not running</div>
+      <div class="blocker-impact">Every day = lost data</div>
+      <div class="blocker-res">Get architecture right first (correct call) — NOW top priority post-archaeology</div>
+    </div>
+    <div class="blocker-card">
+      <div class="blocker-name">~~Projects folder scattered~~</div>
+      <div class="blocker-impact">~~Can't build mothership~~</div>
+      <div class="blocker-res">✅ RESOLVED — archaeology complete, project at C:\Axiom3D</div>
+    </div>
+    <div class="blocker-card">
+      <div class="blocker-name">UTR pending</div>
+      <div class="blocker-impact">Can't open business bank account</div>
+      <div class="blocker-res">Waiting ~15 working days from 02/04/2026 (due ~Apr 22)</div>
+    </div>
+    <div class="blocker-card">
+      <div class="blocker-name">ShinobiNews scheduled tasks</div>
+      <div class="blocker-impact">Cron paths still point to old C:\Projects</div>
+      <div class="blocker-res">Need admin PowerShell: `schtasks /Change /TN &quot;ShinobiNews&quot; /TR &quot;node C:\OtherProjects\ShinobiNews\digest.js&quot; /RU SYSTEM` and same for &quot;ShinobiNews Daily Digest&quot;</div>
+    </div></div>
+</div>
+
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    Strategy Buckets
+  </div>
+  <div class="section-body">
+    <div class="bucket bucket-a"><div class="bucket-label">A — Build First</div>BUCKET A — Shortest Path to Profit (BUILD FIRST)  |  | Thread | Status | Description |</div>
+    <div class="bucket bucket-b"><div class="bucket-label">B — Force Multipliers</div>BUCKET B — Force Multipliers (BUILD SECOND, amplifies A)  |  | Thread | Status | Description |</div>
+    <div class="bucket bucket-c"><div class="bucket-label">C — Edge Expansion</div>BUCKET C — Edge Expansion (BUILD THIRD, builds moat)  |  | Thread | Status | Description |</div>
+    <div class="bucket bucket-d"><div class="bucket-label">D — Later</div>BUCKET D — Infrastructure &amp; Housekeeping (PARALLEL TRACK)  |  | Thread | Status | Description |</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header collapsed" onclick="toggle(this)">
+    Completed <span class="count">0</span>
+  </div>
+  <div class="section-body collapsed"><div class="context-text">Nothing yet</div></div>
+</div>
+
+<div class="section">
+  <div class="section-header collapsed" onclick="toggle(this)">
+    Recent Changes <span class="count">3</span>
+  </div>
+  <div class="section-body collapsed">
+    <div class="changelog-entry">
+      <span class="cl-num">#31</span>
+      <span class="cl-title">Archaeology + Agent System Redesign (Session 2)</span>
+    </div>
+    <div class="changelog-entry">
+      <span class="cl-num">#30</span>
+      <span class="cl-title">Jupiter-anchored FDV + init pipeline timeout fix (v0.5.4)</span>
+    </div>
+    <div class="changelog-entry">
+      <span class="cl-num">#29</span>
+      <span class="cl-title">Chrome extension v3.0: native Axiom UI injection + panel redesign</span>
+    </div></div>
+</div>
+
+<div class="section">
+  <div class="section-header collapsed" onclick="toggle(this)">
+    Agent Roster <span class="count">18</span>
+  </div>
+  <div class="section-body collapsed"><div class="agent-grid">
+    <div class="agent-card">
+      <div class="agent-name">Analyst</div>
+      <div class="agent-desc">Examines OUR collected data, validates hypotheses with statistics. Internal data analysis only.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Architect</div>
+      <div class="agent-desc">Designs systems, data flows, module interfaces. Blueprint before code.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Assistant (Jarvis)</div>
+      <div class="agent-desc">Right-hand man. First point of contact every session. The conductor.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Builder</div>
+      <div class="agent-desc">Writes code, implements features. Only works from signed-off specs. One module at a time.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Business Admin</div>
+      <div class="agent-desc">Commercial lens + investor relationship + business entity management. Everything through the filter of &quot;does this make money, can we prove it, and is the business running properly?&quot;</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Cleaner</div>
+      <div class="agent-desc">Repo janitor. Keeps the workspace clean, organized, and bloat-free. Authority to flag and remove debris.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Critic</div>
+      <div class="agent-desc">Adversarial reviewer. &quot;How would this break?&quot; Finds weaknesses before they find us.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Dietician</div>
+      <div class="agent-desc">Nutrition, meal planning, shopping lists. Fuel the machine properly.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Facilitator</div>
+      <div class="agent-desc">Probes Paul's brain. Asks questions, extracts ideas, organizes them into the right documents.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Gamemaster</div>
+      <div class="agent-desc">Turns the grind into a raid. Paul's brain is a minmax engine — Gamemaster feeds it XP bars, achievements, and progression systems.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">UX Designer</div>
+      <div class="agent-desc">Owns in-app interaction design. Decides TUI vs GUI vs WebUI, how data is displayed, how the user interacts with features. Functionality over convenience.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Librarian</div>
+      <div class="agent-desc">Catalogs existing work, organizes knowledge, archives. The memory of what we've already built and learned.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Dashboard</div>
+      <div class="agent-desc">Owns the live external webapp. A constantly updated service Paul can check from his phone browser without opening Claude Code. Progress tracking, investor views, session summaries, signal status. Think &quot;live scoreboard.&quot;</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Coach</div>
+      <div class="agent-desc">Life coach, not clipboard. Knows Paul as a person. Prevents burnout, builds structure around life, not just code.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Researcher (Coordinator)</div>
+      <div class="agent-desc">Umbrella role that coordinates four research sub-specialties. Routes research requests to the right specialist.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Teambuilder</div>
+      <div class="agent-desc">HR department of one. Evaluates whether the team has gaps, whether a new agent is justified, and whether existing agents are pulling their weight or just taking up roster space.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Tester</div>
+      <div class="agent-desc">Runtime verification. Proves things actually work, not just compile.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Toolman</div>
+      <div class="agent-desc">Bleeding-edge scout + accountant. &quot;Don't build it if there's a $30/mo service that does it better.&quot;</div>
+    </div></div></div>
+</div>
+
+<div class="section">
+  <div class="section-header collapsed" onclick="toggle(this)">
+    Session Context
+  </div>
+  <div class="section-body collapsed"><div class="context-text">&gt; Session 1: Full strategic brain dump — strategy.md, operating_model.md, shift_board.md, 12 agent files, tools_radar.md.<br>&gt; Session 2: Archaeology COMPLETE — Projects folder triaged, project relocated to C:\Axiom3D. Agent system redesigned (18 agents, trigger manifest, session squads). Renames: Investor→Business Admin, GUI→UX Designer, Presentation→Dashboard. AHK + context menu + ShinobiNews paths updated.<br>&gt; Next: Collector architecture (every day without it = lost data). Then mothership design.</div></div>
+</div>
+
+<div class="section">
+  <div class="section-header collapsed" onclick="toggle(this)">
+    Next Session Notes
+  </div>
+  <div class="section-body collapsed"><div class="context-text">- Archaeology DONE — time to declare &quot;Day 1&quot; and set up backups<br>- Old Projects (28 subfolders in C:\OtherProjects\Old Projects) — bulk moved, cherry-pick in future session<br>- Agent system fully redesigned — triggers.md loaded each session for routing<br>- ShinobiNews scheduled tasks still need admin path update (see Blockers)<br>- Collector architecture is now the #1 priority — every day without it = lost data</div></div>
+</div>
+
+<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 14:56</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('collapsed');
+  const body = el.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+</script>
+
+</body>
+</html>
