@@ -258,19 +258,43 @@ body::before {
   font-size: 0.72rem;
 }
 
+/* ── Date Groups ── */
+.date-group {
+  margin-bottom: 8px;
+}
+.date-group:last-child { margin-bottom: 0; }
+.date-label {
+  font-family: 'Oxanium', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--amber-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 0 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+
 /* ── Completed ── */
 .completed-row {
   display: flex;
   gap: 8px;
-  padding: 5px 0;
+  padding: 5px 0 5px 8px;
   border-bottom: 1px solid var(--border);
   font-size: 0.72rem;
   line-height: 1.3;
 }
 .completed-row:last-child { border-bottom: none; }
-.completed-date { color: var(--text-dim); min-width: 68px; flex-shrink: 0; }
 .completed-agent { color: var(--green); min-width: 70px; flex-shrink: 0; }
 .completed-what { color: var(--text); }
+
+/* ── Changelog ── */
+.cl-date {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  display: block;
+  margin-top: 2px;
+}
 
 /* ── Agents ── */
 .agent-grid {
@@ -376,7 +400,7 @@ body::before {
     </div>
     <div class="sync-badge">
       <span class="dot"></span>SYNCED<br>
-      14 Apr 2026, 15:07
+      14 Apr 2026, 19:24
     </div>
   </div>
 </div>
@@ -487,13 +511,13 @@ body::before {
     </div>
     <div class="blocker-card">
       <div class="blocker-name">UTR pending</div>
-      <div class="blocker-impact">Can't open business bank account</div>
-      <div class="blocker-res">Waiting ~15 working days from 02/04/2026 (due ~Apr 22)</div>
+      <div class="blocker-impact">Can't fully operate business</div>
+      <div class="blocker-res">Business bank account OPEN. UTR still awaited (~due Apr 22)</div>
     </div>
     <div class="blocker-card">
-      <div class="blocker-name">ShinobiNews scheduled tasks</div>
-      <div class="blocker-impact">Cron paths still point to old C:\Projects</div>
-      <div class="blocker-res">Need admin PowerShell: `schtasks /Change /TN &quot;ShinobiNews&quot; /TR &quot;node C:\OtherProjects\ShinobiNews\digest.js&quot; /RU SYSTEM` and same for &quot;ShinobiNews Daily Digest&quot;</div>
+      <div class="blocker-name">~~ShinobiNews scheduled tasks~~</div>
+      <div class="blocker-impact">~~Cron paths still point to old C:\Projects~~</div>
+      <div class="blocker-res">✅ RESOLVED — paths updated</div>
     </div></div>
 </div>
 
@@ -514,85 +538,73 @@ body::before {
     Completed <span class="count">16</span>
   </div>
   <div class="section-body collapsed">
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Facilitator</span>
-      <span class="completed-what">Full brain dump — 16 threads extracted</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Researcher</span>
-      <span class="completed-what">AI project methodology — adopted 3-phase build cycle</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Researcher</span>
-      <span class="completed-what">Tools/frameworks for idea decomposition (MCP, CrewAI, OpenClaw, Hermes)</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Architect</span>
-      <span class="completed-what">Created strategy.md, operating_model.md, tools_radar.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Toolman</span>
-      <span class="completed-what">Initial tools radar — 30+ tools catalogued, 8 queued for evaluation</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Assistant</span>
-      <span class="completed-what">Wired up CLAUDE.md for auto-start briefing</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Librarian</span>
-      <span class="completed-what">Archaeology complete — Projects folder triaged, project relocated to C:\Axiom3D</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Cleaner</span>
-      <span class="completed-what">Organized extensions/ (axiom + phanes), tools/ (wallet_finder, youresearch), research/ (api_research, dex_arbitrage_research, thebot_yellowstone_node)</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Teambuilder</span>
-      <span class="completed-what">Agent system redesign — 18 agents restructured with standardized sections, trigger manifest, session squads, phase triggers. Renamed: Investor→Business Admin, GUI→UX Designer, Presentation→Dashboard</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Toolman</span>
-      <span class="completed-what">Deep sweep of 8 tools complete — 2 BUY (Hetzner VPS + xAI API), 2 EVALUATE (Nansen, Birdeye), 4 SKIP. Report: research/tools_radar_sweep.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Researcher</span>
-      <span class="completed-what">Signal aggregation + bot architecture research — 3 real implementations analyzed, revival detection confirmed novel. Report: research/architecture_research.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Librarian</span>
-      <span class="completed-what">Full codebase archaeology — 919-line module map, data flows, gaps identified (dead engines/, unused EventBus). Report: research/codebase_archaeology.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Researcher</span>
-      <span class="completed-what">YouResearch deep dive — architecture, gaps, Fabric patterns, crypto research application. Report: research/youresearch_deep_dive.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Architect</span>
-      <span class="completed-what">Master implementation roadmap — 1,230 lines, 24 work items, dependency chain, MVP path (~22-27 sessions). Report: research/implementation_roadmap.md</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Dashboard</span>
-      <span class="completed-what">Ground Control dashboard live — https://nissthepiss.github.io/axiom3d-dashboard/</span>
-    </div>
-    <div class="completed-row">
-      <span class="completed-date">2026-04-14</span>
-      <span class="completed-agent">Teambuilder</span>
-      <span class="completed-what">Meeting schedule + agent memory protocol established. Files: research/agents/meetings.md, research/agents/memory_protocol.md</span>
+    <div class="date-group">
+      <div class="date-label">14th April</div>
+      
+      <div class="completed-row">
+        <span class="completed-agent">Facilitator</span>
+        <span class="completed-what">Full brain dump — 16 threads extracted</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Researcher</span>
+        <span class="completed-what">AI project methodology — adopted 3-phase build cycle</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Researcher</span>
+        <span class="completed-what">Tools/frameworks for idea decomposition (MCP, CrewAI, OpenClaw, Hermes)</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Architect</span>
+        <span class="completed-what">Created strategy.md, operating_model.md, tools_radar.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Toolman</span>
+        <span class="completed-what">Initial tools radar — 30+ tools catalogued, 8 queued for evaluation</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Assistant</span>
+        <span class="completed-what">Wired up CLAUDE.md for auto-start briefing</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Librarian</span>
+        <span class="completed-what">Archaeology complete — Projects folder triaged, project relocated to C:\Axiom3D</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Cleaner</span>
+        <span class="completed-what">Organized extensions/ (axiom + phanes), tools/ (wallet_finder, youresearch), research/ (api_research, dex_arbitrage_research, thebot_yellowstone_node)</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Teambuilder</span>
+        <span class="completed-what">Agent system redesign — 18 agents restructured with standardized sections, trigger manifest, session squads, phase triggers. Renamed: Investor→Business Admin, GUI→UX Designer, Presentation→Dashboard</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Toolman</span>
+        <span class="completed-what">Deep sweep of 8 tools complete — 2 BUY (Hetzner VPS + xAI API), 2 EVALUATE (Nansen, Birdeye), 4 SKIP. Report: research/tools_radar_sweep.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Researcher</span>
+        <span class="completed-what">Signal aggregation + bot architecture research — 3 real implementations analyzed, revival detection confirmed novel. Report: research/architecture_research.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Librarian</span>
+        <span class="completed-what">Full codebase archaeology — 919-line module map, data flows, gaps identified (dead engines/, unused EventBus). Report: research/codebase_archaeology.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Researcher</span>
+        <span class="completed-what">YouResearch deep dive — architecture, gaps, Fabric patterns, crypto research application. Report: research/youresearch_deep_dive.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Architect</span>
+        <span class="completed-what">Master implementation roadmap — 1,230 lines, 24 work items, dependency chain, MVP path (~22-27 sessions). Report: research/implementation_roadmap.md</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Dashboard</span>
+        <span class="completed-what">Ground Control dashboard live — https://nissthepiss.github.io/axiom3d-dashboard/</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Teambuilder</span>
+        <span class="completed-what">Meeting schedule + agent memory protocol established. Files: research/agents/meetings.md, research/agents/memory_protocol.md</span>
+      </div>
     </div></div>
 </div>
 
@@ -604,14 +616,17 @@ body::before {
     <div class="changelog-entry">
       <span class="cl-num">#32</span>
       <span class="cl-title">Deep Research Sprint + Ground Control Dashboard (Session 2 cont.)</span>
+      
     </div>
     <div class="changelog-entry">
       <span class="cl-num">#31</span>
       <span class="cl-title">Archaeology + Agent System Redesign (Session 2)</span>
+      
     </div>
     <div class="changelog-entry">
       <span class="cl-num">#30</span>
       <span class="cl-title">Jupiter-anchored FDV + init pipeline timeout fix (v0.5.4)</span>
+      
     </div></div>
 </div>
 
@@ -708,7 +723,7 @@ body::before {
   <div class="section-body collapsed"><div class="context-text">- **BRAINSTORM READY:** 6 research reports await review. Paul and Jarvis should do a brainstorm session to discuss findings and make decisions.<br>- Old Projects (28 subfolders in C:\OtherProjects\Old Projects) — cataloged, 5 high-value picks identified (see research/old_projects_catalog.md)<br>- Collector architecture is now the #1 priority — every day without it = lost data<br>- MVP to profit: ~22-27 sessions (~7-9 weeks). Roadmap in research/implementation_roadmap.md<br>- ShinobiNews scheduled tasks still need admin path update (see Blockers)<br>- Netlify auth needed for future dashboard deploys (currently via GitHub Pages)</div></div>
 </div>
 
-<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 15:07</div>
+<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 19:24</div>
 
 <script>
 function toggle(el) {
