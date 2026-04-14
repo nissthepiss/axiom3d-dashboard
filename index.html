@@ -369,6 +369,123 @@ body::before {
   white-space: pre-wrap;
 }
 
+/* ── Notes ── */
+.notes-input {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.notes-input input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-bright);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  outline: none;
+  min-height: 44px;
+}
+.notes-input input::placeholder { color: var(--text-dim); }
+.notes-input input:focus { border-color: var(--amber-dim); }
+.notes-send {
+  background: var(--amber);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0 16px;
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.notes-send:active { opacity: 0.7; }
+.notes-send:disabled { opacity: 0.3; cursor: default; }
+.note-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  gap: 8px;
+}
+.note-item:last-child { border-bottom: none; }
+.note-text { color: var(--text); flex: 1; line-height: 1.4; }
+.note-meta {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.note-delete {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 28px;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.note-delete:active { background: var(--red-dim); color: var(--red); border-color: var(--red); }
+.note-empty {
+  padding: 16px 12px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+.note-setup {
+  padding: 12px;
+  text-align: center;
+}
+.note-setup input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-bright);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  padding: 10px;
+  width: 100%;
+  margin: 8px 0;
+  outline: none;
+  min-height: 44px;
+}
+.note-setup button {
+  background: var(--amber);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  min-height: 44px;
+}
+.note-setup .hint {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+.note-status {
+  font-size: 0.62rem;
+  color: var(--amber);
+  padding: 4px 12px;
+  text-align: center;
+}
+
 /* ── Footer ── */
 .footer {
   text-align: center;
@@ -400,12 +517,34 @@ body::before {
     </div>
     <div class="sync-badge">
       <span class="dot"></span>SYNCED<br>
-      14 Apr 2026, 19:25
+      14 Apr 2026, 20:35
     </div>
   </div>
 </div>
 
 <div class="phase-banner"><strong style="color:var(--text-bright)">Archaeology COMPLETE</strong> — Projects folder triaged, project relocated to C:\Axiom3D, agent system redesigned.<br><strong style="color:var(--text-bright)">Next up:</strong> Collector architecture + mothership design (see MEDIUM PRIORITY).<br><br>---</div>
+
+<div class="section" id="notes-section">
+  <div class="section-header" style="cursor:default">
+    Notes to Jarvis <span class="count" id="notes-count">-</span>
+  </div>
+  <div id="notes-auth">
+    <div class="note-setup">
+      <div style="font-size:0.75rem;color:var(--text);margin-bottom:6px">Connect GitHub to leave notes</div>
+      <input type="password" id="pat-input" placeholder="Paste GitHub token here...">
+      <button onclick="saveToken()">CONNECT</button>
+      <div class="hint">Create a fine-grained token at github.com/settings/tokens<br>Scope: axiom3d-dashboard repo, Issues read/write only</div>
+    </div>
+  </div>
+  <div id="notes-live" style="display:none">
+    <div class="notes-input">
+      <input type="text" id="note-input" placeholder="Leave a note for Jarvis..." onkeydown="if(event.key==='Enter')sendNote()">
+      <button class="notes-send" onclick="sendNote()">SEND</button>
+    </div>
+    <div id="notes-status"></div>
+    <div id="notes-list"><div class="note-empty">Loading...</div></div>
+  </div>
+</div>
 
 <div class="progress-section">
   <div class="progress-header">
@@ -723,7 +862,7 @@ body::before {
   <div class="section-body collapsed"><div class="context-text">- <strong style="color:var(--text-bright)">BRAINSTORM READY:</strong> 6 research reports await review. Paul and Jarvis should do a brainstorm session to discuss findings and make decisions.<br>- Old Projects (28 subfolders in C:\OtherProjects\Old Projects) — cataloged, 5 high-value picks identified (see research/old_projects_catalog.md)<br>- Collector architecture is now the #1 priority — every day without it = lost data<br>- MVP to profit: ~22-27 sessions (~7-9 weeks). Roadmap in research/implementation_roadmap.md<br>- ShinobiNews scheduled tasks still need admin path update (see Blockers)<br>- Netlify auth needed for future dashboard deploys (currently via GitHub Pages)</div></div>
 </div>
 
-<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 19:25</div>
+<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 20:35</div>
 
 <script>
 function toggle(el) {
@@ -731,6 +870,170 @@ function toggle(el) {
   const body = el.nextElementSibling;
   body.classList.toggle('collapsed');
 }
+
+// ── Notes System (GitHub Issues) ──
+const REPO = 'nissthepiss/axiom3d-dashboard';
+const API = 'https://api.github.com';
+
+function getToken() { return localStorage.getItem('ghToken'); }
+
+function saveToken() {
+  const t = document.getElementById('pat-input').value.trim();
+  if (!t) return;
+  localStorage.setItem('ghToken', t);
+  initNotes();
+}
+
+function clearToken() {
+  localStorage.removeItem('ghToken');
+  document.getElementById('notes-auth').style.display = '';
+  document.getElementById('notes-live').style.display = 'none';
+}
+
+async function apiFetch(path, opts = {}) {
+  const token = getToken();
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.headers || {})
+    }
+  });
+  if (res.status === 401) { clearToken(); throw new Error('Token expired'); }
+  return res;
+}
+
+async function fetchNotes() {
+  const res = await apiFetch('/repos/' + REPO + '/issues?labels=note&state=open&sort=created&direction=desc&per_page=50');
+  return await res.json();
+}
+
+async function createNote(text) {
+  const res = await apiFetch('/repos/' + REPO + '/issues', {
+    method: 'POST',
+    body: JSON.stringify({ title: text, labels: ['note'] })
+  });
+  return await res.json();
+}
+
+async function deleteNote(num) {
+  await apiFetch('/repos/' + REPO + '/issues/' + num, {
+    method: 'PATCH',
+    body: JSON.stringify({ state: 'closed' })
+  });
+}
+
+function timeAgo(dateStr) {
+  const s = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  const d = Math.floor(s/86400);
+  return d === 1 ? 'yesterday' : d + 'd ago';
+}
+
+function renderNotes(notes) {
+  const el = document.getElementById('notes-list');
+  const countEl = document.getElementById('notes-count');
+  countEl.textContent = notes.length;
+  if (!notes.length) {
+    el.innerHTML = '<div class="note-empty">No notes. Drop ideas here from your phone.</div>';
+    return;
+  }
+  el.innerHTML = notes.map(n => {
+    const t = n.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div class="note-item" id="note-' + n.number + '">' +
+      '<div><div class="note-text">' + t + '</div>' +
+      '<div class="note-meta">' + timeAgo(n.created_at) + '</div></div>' +
+      '<button class="note-delete" onclick="confirmDelete(' + n.number + ',this)" title="Delete">&times;</button>' +
+      '</div>';
+  }).join('');
+}
+
+let deleteTimeout = null;
+function confirmDelete(num, btn) {
+  if (btn.dataset.armed) {
+    clearTimeout(deleteTimeout);
+    btn.dataset.armed = '';
+    document.getElementById('note-' + num).style.opacity = '0.3';
+    deleteNote(num).then(() => {
+      document.getElementById('note-' + num).remove();
+      const c = document.getElementById('notes-count');
+      c.textContent = Math.max(0, parseInt(c.textContent) - 1);
+    });
+    return;
+  }
+  btn.dataset.armed = '1';
+  btn.style.background = 'var(--red-dim)';
+  btn.style.color = 'var(--red)';
+  btn.style.borderColor = 'var(--red)';
+  btn.innerHTML = '?';
+  deleteTimeout = setTimeout(() => {
+    btn.dataset.armed = '';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.innerHTML = '&times;';
+  }, 3000);
+}
+
+function showStatus(msg) {
+  const el = document.getElementById('notes-status');
+  el.textContent = msg;
+  setTimeout(() => el.textContent = '', 3000);
+}
+
+async function sendNote() {
+  const inp = document.getElementById('note-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const btn = document.querySelector('.notes-send');
+  btn.disabled = true;
+  inp.value = '';
+  try {
+    const note = await createNote(text);
+    const list = document.getElementById('notes-list');
+    const empty = list.querySelector('.note-empty');
+    if (empty) empty.remove();
+    const t = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    list.insertAdjacentHTML('afterbegin',
+      '<div class="note-item" id="note-' + note.number + '">' +
+      '<div><div class="note-text">' + t + '</div>' +
+      '<div class="note-meta">just now</div></div>' +
+      '<button class="note-delete" onclick="confirmDelete(' + note.number + ',this)" title="Delete">&times;</button>' +
+      '</div>');
+    const c = document.getElementById('notes-count');
+    c.textContent = parseInt(c.textContent || 0) + 1;
+    showStatus('Sent');
+  } catch(e) {
+    showStatus('Failed: ' + e.message);
+    inp.value = text;
+  }
+  btn.disabled = false;
+  inp.focus();
+}
+
+async function initNotes() {
+  const token = getToken();
+  if (!token) {
+    document.getElementById('notes-auth').style.display = '';
+    document.getElementById('notes-live').style.display = 'none';
+    return;
+  }
+  document.getElementById('notes-auth').style.display = 'none';
+  document.getElementById('notes-live').style.display = '';
+  try {
+    const notes = await fetchNotes();
+    renderNotes(notes);
+  } catch(e) {
+    document.getElementById('notes-list').innerHTML =
+      '<div class="note-empty">Could not load notes. ' + e.message + '</div>';
+  }
+}
+
+initNotes();
 </script>
 
 </body>
