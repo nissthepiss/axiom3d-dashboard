@@ -506,9 +506,108 @@ body::before {
   transform: rotate(-90deg);
 }
 </style>
+</style>
+<style>
+/* ── PIN Gate ── */
+#pin-gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+#pin-gate .gate-logo {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--amber);
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+#pin-gate .gate-sub {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+}
+#pin-gate .pin-dots {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+#pin-gate .pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border-bright);
+  background: transparent;
+  transition: all 0.15s;
+}
+#pin-gate .pin-dot.filled {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+#pin-gate .pin-dot.wrong {
+  border-color: var(--red);
+  background: var(--red);
+  animation: shake 0.4s ease;
+}
+#pin-gate .pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  gap: 10px;
+}
+#pin-gate .pin-btn {
+  width: 64px; height: 54px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-bright);
+  font-family: 'Oxanium', sans-serif;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+#pin-gate .pin-btn:active { background: var(--amber-dim); border-color: var(--amber); }
+#pin-gate .pin-btn.fn { font-size: 0.7rem; color: var(--text-dim); }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+#dashboard { display: none; }
+#dashboard.unlocked { display: block; }
+</style>
 </head>
 <body>
 
+<div id="pin-gate">
+  <div class="gate-logo">AXIOM3D</div>
+  <div class="gate-sub">GROUND CONTROL</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn fn" onclick="pinClear()">CLR</button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn fn" onclick="pinBack()">&#9003;</button>
+  </div>
+</div>
+
+<div id="dashboard">
 <div class="header">
   <div class="header-top">
     <div class="logo">
@@ -517,12 +616,12 @@ body::before {
     </div>
     <div class="sync-badge">
       <span class="dot"></span>SYNCED<br>
-      14 Apr 2026, 20:35
+      15 Apr 2026, 03:18
     </div>
   </div>
 </div>
 
-<div class="phase-banner"><strong style="color:var(--text-bright)">Archaeology COMPLETE</strong> — Projects folder triaged, project relocated to C:\Axiom3D, agent system redesigned.<br><strong style="color:var(--text-bright)">Next up:</strong> Collector architecture + mothership design (see MEDIUM PRIORITY).<br><br>---</div>
+<div class="phase-banner"><strong style="color:var(--text-bright)">Revival detection RESEARCHED</strong> — All parameters defined, algorithm spec drafted. FDV accuracy test harness spec signed off.<br><strong style="color:var(--text-bright)">Next up:</strong> BUILD the FDV test harness (spec: `specs/fdv_accuracy_test_harness.md`). Then fix FDV accuracy. Then revival detector.<br><br>---</div>
 
 <div class="section" id="notes-section">
   <div class="section-header" style="cursor:default">
@@ -543,6 +642,63 @@ body::before {
     </div>
     <div id="notes-status"></div>
     <div id="notes-list"><div class="note-empty">Loading...</div></div>
+  </div>
+</div>
+
+<div class="section" id="ideas-section">
+  <div class="section-header" style="cursor:default">
+    Ideas Inbox <span class="count" id="ideas-count">11</span>
+  </div>
+  <div id="ideas-auth" style="display:none">
+    <div class="note-setup">
+      <div style="font-size:0.75rem;color:var(--text);margin-bottom:6px">Connect GitHub to manage ideas from your phone</div>
+      <div class="hint">Uses the same token as Notes — connect there first</div>
+    </div>
+  </div>
+  <div id="ideas-live" style="display:none">
+    <div class="notes-input">
+      <input type="text" id="idea-input" placeholder="Drop an idea..." onkeydown="if(event.key==='Enter')sendIdea()">
+      <button class="notes-send" onclick="sendIdea()">ADD</button>
+    </div>
+    <div id="ideas-status"></div>
+    <div id="ideas-list"><div class="note-empty">Loading...</div></div>
+  </div>
+  <div id="ideas-static">
+    <div style="padding:8px 12px 4px;font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">From strategy.md</div>
+    
+    <div class="note-item">
+      <div><div class="note-text">Research which social media sentiment tools exist and are worth paying for</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text">Investigate if Axiom viewer API can be accessed more efficiently than Chrome scraping</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text">Consider Telegram bot interface for alerts (phone notifications while away from desk)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text">Explore whether token name similarity detection could catch metas early</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">Achievements web dashboard</strong> — Gamemaster + Dashboard collab. Visual progression tracking. (2026-04-14)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">xAI API (Grok)</strong> — real-time X search for narrative detection. ~£20-40/mo. Tools radar says BUY. (from tools_radar_sweep 2026-04-14)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">Chrome extension as paid product</strong> — Paul flagged Axiom3D panel has standalone commercial potential for Axiom traders. (2026-04-14)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">YouResearch integration</strong> — YouTube transcript extraction → Gemini analysis. ChromaDB vector search for cross-transcript queries. Untapped alpha source. (from youresearch_deep_dive)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">LunarResearcher thread</strong> — https://x.com/LunarResearcher/status/2043791114252234873 — review and categorize (Paul, 2026-04-14)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">Arkham Intelligence</strong> — wallet intelligence + labels. Evaluate for KOL tracking. (from tools_radar)</div></div>
+    </div>
+    <div class="note-item">
+      <div><div class="note-text"><strong style="color:var(--text-bright)">Cielo Finance</strong> — wallet flow analysis. May help KOL galaxy work. (from tools_radar)</div></div>
+    </div>
   </div>
 </div>
 
@@ -674,7 +830,7 @@ body::before {
 
 <div class="section">
   <div class="section-header collapsed" onclick="toggle(this)">
-    Completed <span class="count">16</span>
+    Completed <span class="count">20</span>
   </div>
   <div class="section-body collapsed">
     <div class="date-group">
@@ -744,6 +900,26 @@ body::before {
         <span class="completed-agent">Teambuilder</span>
         <span class="completed-what">Meeting schedule + agent memory protocol established. Files: research/agents/meetings.md, research/agents/memory_protocol.md</span>
       </div>
+    </div>
+    <div class="date-group">
+      <div class="date-label">15th April</div>
+      
+      <div class="completed-row">
+        <span class="completed-agent">Researcher</span>
+        <span class="completed-what">Revival detection deep dive — all parameters defined via brainstorm with Paul. Scale, triggers, thresholds, config, pipeline architecture confirmed</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Jarvis</span>
+        <span class="completed-what">Information Routing Protocol built — 6-step per-prompt flow, session close routine, monthly process review. CLAUDE.md updated</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Teambuilder</span>
+        <span class="completed-what">Algorithm Agent created — owns all trading algo specs, parameters, testing, graveyard</span>
+      </div>
+      <div class="completed-row">
+        <span class="completed-agent">Tester</span>
+        <span class="completed-what">FDV accuracy test harness spec signed off — `specs/fdv_accuracy_test_harness.md`</span>
+      </div>
     </div></div>
 </div>
 
@@ -753,6 +929,11 @@ body::before {
   </div>
   <div class="section-body collapsed">
     <div class="changelog-entry">
+      <span class="cl-num">#33</span>
+      <span class="cl-title">Geyser Self-Discovery: 6-Platform Launch Detection + Auto-Init (v0.6.0)</span>
+      
+    </div>
+    <div class="changelog-entry">
       <span class="cl-num">#32</span>
       <span class="cl-title">Deep Research Sprint + Ground Control Dashboard (Session 2 cont.)</span>
       
@@ -761,19 +942,18 @@ body::before {
       <span class="cl-num">#31</span>
       <span class="cl-title">Archaeology + Agent System Redesign (Session 2)</span>
       
-    </div>
-    <div class="changelog-entry">
-      <span class="cl-num">#30</span>
-      <span class="cl-title">Jupiter-anchored FDV + init pipeline timeout fix (v0.5.4)</span>
-      
     </div></div>
 </div>
 
 <div class="section">
   <div class="section-header collapsed" onclick="toggle(this)">
-    Agent Roster <span class="count">18</span>
+    Agent Roster <span class="count">19</span>
   </div>
   <div class="section-body collapsed"><div class="agent-grid">
+    <div class="agent-card">
+      <div class="agent-name">Algorithm</div>
+      <div class="agent-desc">Owns every trading algorithm, detection strategy, and scoring formula. Documents, tests, iterates, and retires them.</div>
+    </div>
     <div class="agent-card">
       <div class="agent-name">Analyst</div>
       <div class="agent-desc">Examines OUR collected data, validates hypotheses with statistics. Internal data analysis only.</div>
@@ -852,17 +1032,79 @@ body::before {
   <div class="section-header collapsed" onclick="toggle(this)">
     Session Context
   </div>
-  <div class="section-body collapsed"><div class="context-text">&gt; Session 1: Full strategic brain dump — strategy.md, operating_model.md, shift_board.md, 12 agent files, tools_radar.md.<br>&gt; Session 2: Archaeology COMPLETE — Projects folder triaged, project relocated to C:\Axiom3D. Agent system redesigned (18 agents, trigger manifest, session squads). Renames: Investor→Business Admin, GUI→UX Designer, Presentation→Dashboard. AHK + context menu + ShinobiNews paths updated.<br>&gt; Next: Collector architecture (every day without it = lost data). Then mothership design.</div></div>
+  <div class="section-body collapsed"><div class="context-text">&gt; Session 3: Revival detection research COMPLETE — scale (600-1k tokens/day), buy trigger (sell-streak/silence → buy), sliding confidence (5min floor), FDV floor (absolute + ratio), viewer count (multiplier not gate), pipeline (Yellowstone + scrapers), config (TOML + hot reload + TUI). Information Routing Protocol built (6-step per-prompt flow). Algorithm Agent created. FDV accuracy test harness spec signed off.<br>&gt; Next: BUILD the FDV test harness (fresh session, read spec). Then fix FDV accuracy. Then revival detector spec.</div></div>
 </div>
 
 <div class="section">
   <div class="section-header collapsed" onclick="toggle(this)">
     Next Session Notes
   </div>
-  <div class="section-body collapsed"><div class="context-text">- <strong style="color:var(--text-bright)">BRAINSTORM READY:</strong> 6 research reports await review. Paul and Jarvis should do a brainstorm session to discuss findings and make decisions.<br>- Old Projects (28 subfolders in C:\OtherProjects\Old Projects) — cataloged, 5 high-value picks identified (see research/old_projects_catalog.md)<br>- Collector architecture is now the #1 priority — every day without it = lost data<br>- MVP to profit: ~22-27 sessions (~7-9 weeks). Roadmap in research/implementation_roadmap.md<br>- ShinobiNews scheduled tasks still need admin path update (see Blockers)<br>- Netlify auth needed for future dashboard deploys (currently via GitHub Pages)</div></div>
+  <div class="section-body collapsed"><div class="context-text">- <strong style="color:var(--text-bright)">BUILD SESSION:</strong> FDV accuracy test harness. Spec is signed off at `specs/fdv_accuracy_test_harness.md`. Fresh session, read the spec, execute.<br>- Need BrowserMCP connected to Axiom New Pairs page to identify DOM selectors<br>- After test harness built: run 15-30min on live market, analyze CSV, fix top error sources<br>- MVP to profit: ~22-27 sessions (~7-9 weeks). Roadmap in research/implementation_roadmap.md<br>- Revival detection parameters fully defined — ready for Algorithm Agent spec after FDV accuracy is resolved<br>- Agent routing protocol live — first session close routine running now</div></div>
 </div>
 
-<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 14 APR 2026, 20:35</div>
+<div class="footer">AXIOM3D GROUND CONTROL &middot; BUILT 15 APR 2026, 03:18</div>
+</div><!-- end #dashboard -->
+
+<script>
+// ── PIN Gate ──
+const PIN_HASH = '65ab749279c8fbe6d2305db2141ed892e39a80a6823946aaf272414392720ad6';
+const PIN_LEN = 4;
+let pinBuffer = '';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function updateDots() {
+  const dots = document.querySelectorAll('#pin-dots .pin-dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('wrong');
+  });
+}
+
+async function checkPin() {
+  const hash = await sha256(pinBuffer);
+  if (hash === PIN_HASH) {
+    localStorage.setItem('gc_auth', hash);
+    unlock();
+  } else {
+    const dots = document.querySelectorAll('#pin-dots .pin-dot');
+    dots.forEach(d => { d.classList.add('wrong'); d.classList.remove('filled'); });
+    pinBuffer = '';
+    setTimeout(updateDots, 500);
+  }
+}
+
+function pinPress(n) {
+  if (pinBuffer.length >= PIN_LEN) return;
+  pinBuffer += n;
+  updateDots();
+  if (pinBuffer.length === PIN_LEN) setTimeout(checkPin, 150);
+}
+
+function pinClear() { pinBuffer = ''; updateDots(); }
+function pinBack() { pinBuffer = pinBuffer.slice(0, -1); updateDots(); }
+
+function unlock() {
+  document.getElementById('pin-gate').style.display = 'none';
+  document.getElementById('dashboard').classList.add('unlocked');
+}
+
+// Check if already authed
+if (localStorage.getItem('gc_auth') === PIN_HASH) {
+  unlock();
+}
+
+// Keyboard support
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('pin-gate').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  else if (e.key === 'Backspace') pinBack();
+  else if (e.key === 'Escape') pinClear();
+});
+</script>
 
 <script>
 function toggle(el) {
@@ -1033,7 +1275,134 @@ async function initNotes() {
   }
 }
 
+// ── Ideas Inbox (GitHub Issues, label: idea) ──
+
+async function fetchIdeas() {
+  const res = await apiFetch('/repos/' + REPO + '/issues?labels=idea&state=open&sort=created&direction=desc&per_page=50');
+  return await res.json();
+}
+
+async function createIdea(text) {
+  const res = await apiFetch('/repos/' + REPO + '/issues', {
+    method: 'POST',
+    body: JSON.stringify({ title: text, labels: ['idea'] })
+  });
+  return await res.json();
+}
+
+async function deleteIdea(num) {
+  await apiFetch('/repos/' + REPO + '/issues/' + num, {
+    method: 'PATCH',
+    body: JSON.stringify({ state: 'closed' })
+  });
+}
+
+function renderIdeas(ideas) {
+  const el = document.getElementById('ideas-list');
+  const countEl = document.getElementById('ideas-count');
+  const staticCount = document.querySelectorAll('#ideas-static .note-item').length;
+  countEl.textContent = ideas.length + staticCount;
+  if (!ideas.length) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = '<div style="padding:8px 12px 4px;font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">From phone</div>' +
+    ideas.map(n => {
+    const t = n.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<div class="note-item" id="idea-' + n.number + '">' +
+      '<div><div class="note-text">' + t + '</div>' +
+      '<div class="note-meta">' + timeAgo(n.created_at) + '</div></div>' +
+      '<button class="note-delete" onclick="confirmDeleteIdea(' + n.number + ',this)" title="Done/Remove">&times;</button>' +
+      '</div>';
+  }).join('');
+}
+
+let ideaDeleteTimeout = null;
+function confirmDeleteIdea(num, btn) {
+  if (btn.dataset.armed) {
+    clearTimeout(ideaDeleteTimeout);
+    btn.dataset.armed = '';
+    document.getElementById('idea-' + num).style.opacity = '0.3';
+    deleteIdea(num).then(() => {
+      document.getElementById('idea-' + num).remove();
+      const c = document.getElementById('ideas-count');
+      c.textContent = Math.max(0, parseInt(c.textContent) - 1);
+    });
+    return;
+  }
+  btn.dataset.armed = '1';
+  btn.style.background = 'var(--red-dim)';
+  btn.style.color = 'var(--red)';
+  btn.style.borderColor = 'var(--red)';
+  btn.innerHTML = '?';
+  ideaDeleteTimeout = setTimeout(() => {
+    btn.dataset.armed = '';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.innerHTML = '&times;';
+  }, 3000);
+}
+
+function showIdeaStatus(msg) {
+  const el = document.getElementById('ideas-status');
+  el.textContent = msg;
+  setTimeout(() => el.textContent = '', 3000);
+}
+
+async function sendIdea() {
+  const inp = document.getElementById('idea-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const btn = inp.nextElementSibling;
+  btn.disabled = true;
+  inp.value = '';
+  try {
+    const idea = await createIdea(text);
+    const list = document.getElementById('ideas-list');
+    const t = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if (!list.querySelector('.note-item')) {
+      list.innerHTML = '<div style="padding:8px 12px 4px;font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">From phone</div>';
+    }
+    list.insertAdjacentHTML('beforeend',
+      '<div class="note-item" id="idea-' + idea.number + '">' +
+      '<div><div class="note-text">' + t + '</div>' +
+      '<div class="note-meta">just now</div></div>' +
+      '<button class="note-delete" onclick="confirmDeleteIdea(' + idea.number + ',this)" title="Done/Remove">&times;</button>' +
+      '</div>');
+    const c = document.getElementById('ideas-count');
+    c.textContent = parseInt(c.textContent || 0) + 1;
+    showIdeaStatus('Added');
+  } catch(e) {
+    showIdeaStatus('Failed: ' + e.message);
+    inp.value = text;
+  }
+  btn.disabled = false;
+  inp.focus();
+}
+
+async function initIdeas() {
+  const token = getToken();
+  if (!token) {
+    document.getElementById('ideas-auth').style.display = '';
+    document.getElementById('ideas-live').style.display = 'none';
+    document.getElementById('ideas-static').style.display = '';
+    return;
+  }
+  document.getElementById('ideas-auth').style.display = 'none';
+  document.getElementById('ideas-live').style.display = '';
+  document.getElementById('ideas-static').style.display = '';
+  try {
+    const ideas = await fetchIdeas();
+    renderIdeas(ideas);
+  } catch(e) {
+    document.getElementById('ideas-list').innerHTML =
+      '<div class="note-empty">Could not load ideas. ' + e.message + '</div>';
+  }
+}
+
 initNotes();
+initIdeas();
 </script>
 
 </body>
